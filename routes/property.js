@@ -5,6 +5,7 @@ import {
   createProperty,
   getAllProperties,
   getProperty,
+  updateProperty,
 } from "../controllers/property.js";
 import auth from "../middlewares/auth.js";
 
@@ -29,5 +30,6 @@ const cpUpload = upload.fields([
 router.post("/create", auth, createProperty);
 router.get("/", getAllProperties);
 router.get("/:id", getProperty);
+router.put("/:id", auth, updateProperty);
 
 export default router;

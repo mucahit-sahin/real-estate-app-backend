@@ -125,3 +125,22 @@ export const getProperty = async (req, res) => {
     });
   }
 };
+
+export const updateProperty = async (req, res) => {
+  try {
+    const property = await Property.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    return res.status(200).json({
+      status: "success",
+      data: {
+        property,
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "fail",
+      message: err.message,
+    });
+  }
+};
