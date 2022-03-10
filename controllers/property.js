@@ -144,3 +144,20 @@ export const updateProperty = async (req, res) => {
     });
   }
 };
+
+export const deleteProperty = async (req, res) => {
+  try {
+    const property = await Property.findByIdAndDelete(req.params.id);
+    return res.status(200).json({
+      status: "success",
+      data: {
+        property,
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "fail",
+      message: err.message,
+    });
+  }
+};
