@@ -86,15 +86,23 @@ export const getAllProperties = async (req, res) => {
 
 export const getAllPropertiesByLocation = async (req, res) => {
   try {
+    const LIMIT = req.query.limit || 10;
     const { latitude, longitude } = req.query;
     const properties = await Property.find({
       latitude,
       longitude,
     });
+
+    const startIndex = (Number(req.query.page) - 1) * LIMIT; // get the starting index of every page
+    const total = properties.length; // get the total number of properties
+    const propertiesByUser = properties.slice(startIndex, startIndex + LIMIT);
+
     return res.status(200).json({
       status: "success",
       data: {
-        properties,
+        properties: propertiesByUser,
+        numberofpages: Math.ceil(total / LIMIT),
+        currentPage: Number(req.query.page),
       },
     });
   } catch (err) {

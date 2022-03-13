@@ -88,6 +88,7 @@ export const authUser = async (req, res) => {
 
 export const getUserProperties = async (req, res) => {
   try {
+    const LIMIT = req.query.limit || 10;
     const { userId } = req.user;
     const user = await User.findById(userId);
     if (!user) {
@@ -96,8 +97,15 @@ export const getUserProperties = async (req, res) => {
       });
     }
     const properties = await Property.find({ user: userId });
+
+    const startIndex = (Number(req.query.page) - 1) * LIMIT; // get the starting index of every page
+    const total = properties.length; // get the total number of properties
+    const propertiesByUser = properties.slice(startIndex, startIndex + LIMIT);
+
     res.json({
-      properties,
+      properties: propertiesByUser,
+      numberofpages: Math.ceil(total / LIMIT),
+      currentPage: Number(req.query.page),
     });
   } catch (error) {
     console.log(error);
