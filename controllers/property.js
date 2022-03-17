@@ -65,11 +65,21 @@ export const createProperty = async (req, res) => {
 
 export const getAllProperties = async (req, res) => {
   try {
-    const properties = await Property.find().populate("user", [
-      "_id",
-      "fullname",
-      "email",
-    ]);
+    var minPrice = req.query.minPrice || 0;
+    var maxPrice = req.query.maxPrice || 10000000;
+    var minBedrooms = req.query.minBedrooms || 0;
+    var maxBedrooms = req.query.maxBedrooms || 10;
+    var propertyTypes = ["House", "Apartment", "Room", "Cabin"];
+    if (req.query.propertyType) {
+      propertyTypes = req.query.propertyType.split(",");
+    }
+    // if there is no query, return all properties
+    const properties = await Property.find({
+      price: { $gte: minPrice, $lte: maxPrice },
+      bedrooms: { $gte: minBedrooms, $lte: maxBedrooms },
+      propertyType: { $in: propertyTypes },
+    }).populate("user", ["_id", "fullname", "email"]);
+
     return res.status(200).json({
       status: "success",
       data: {
@@ -77,6 +87,7 @@ export const getAllProperties = async (req, res) => {
       },
     });
   } catch (err) {
+    console.log(err);
     return res.status(400).json({
       status: "fail",
       message: err.message,
