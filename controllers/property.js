@@ -70,20 +70,31 @@ export const getAllProperties = async (req, res) => {
     var minBedrooms = req.query.minBedrooms || 0;
     var maxBedrooms = req.query.maxBedrooms || 10;
     var propertyTypes = ["House", "Apartment", "Room", "Cabin"];
+    var page = req.query.page || 1;
+    var LIMIT = req.query.limit || 1;
+
     if (req.query.propertyType) {
       propertyTypes = req.query.propertyType.split(",");
     }
     // if there is no query, return all properties
-    const properties = await Property.find({
+    var properties = await Property.find({
       price: { $gte: minPrice, $lte: maxPrice },
       bedrooms: { $gte: minBedrooms, $lte: maxBedrooms },
       propertyType: { $in: propertyTypes },
     }).populate("user", ["_id", "fullname", "email"]);
 
+    const startIndex = (Number(req.query.page) - 1) * LIMIT; // get the starting index of every page
+    const total = properties.length; // get the total number of properties
+    if (req.query.page) {
+      properties = properties.slice(startIndex, startIndex + LIMIT);
+    }
+
     return res.status(200).json({
       status: "success",
       data: {
         properties,
+        numberofpages: Math.ceil(total / LIMIT),
+        currentPage: Number(page),
       },
     });
   } catch (err) {
@@ -99,12 +110,13 @@ export const getAllPropertiesByLocation = async (req, res) => {
   try {
     const LIMIT = req.query.limit || 10;
     const { latitude, longitude } = req.query;
+    const page = req.query.page || 1;
     const properties = await Property.find({
       latitude,
       longitude,
     });
 
-    const startIndex = (Number(req.query.page) - 1) * LIMIT; // get the starting index of every page
+    const startIndex = (Number(page) - 1) * LIMIT; // get the starting index of every page
     const total = properties.length; // get the total number of properties
     const propertiesByUser = properties.slice(startIndex, startIndex + LIMIT);
 
@@ -113,7 +125,7 @@ export const getAllPropertiesByLocation = async (req, res) => {
       data: {
         properties: propertiesByUser,
         numberofpages: Math.ceil(total / LIMIT),
-        currentPage: Number(req.query.page),
+        currentPage: Number(page),
       },
     });
   } catch (err) {
