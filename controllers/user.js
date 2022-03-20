@@ -88,7 +88,7 @@ export const authUser = async (req, res) => {
 
 export const getUserProperties = async (req, res) => {
   try {
-    const LIMIT = req.query.limit || 1;
+    const LIMIT = req.query.limit || 5;
     const page = req.query.page || 1;
     const { userId } = req.user;
     const user = await User.findById(userId);

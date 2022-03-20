@@ -71,7 +71,7 @@ export const getAllProperties = async (req, res) => {
     var maxBedrooms = req.query.maxBedrooms || 10;
     var propertyTypes = ["House", "Apartment", "Room", "Cabin"];
     var page = req.query.page || 1;
-    var LIMIT = req.query.limit || 1;
+    var LIMIT = req.query.limit || 5;
 
     if (req.query.propertyType) {
       propertyTypes = req.query.propertyType.split(",");
