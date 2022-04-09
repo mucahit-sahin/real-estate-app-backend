@@ -9,17 +9,20 @@ export const signin = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
+        status: "fail",
         message: "User not found",
       });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({
+        status: "fail",
         message: "Incorrect password",
       });
     }
     const token = jwt.sign({ userId: user._id }, process.env.JWT_KEY);
     res.json({
+      status: "success",
       token,
       user: {
         fullname: user.fullname,
@@ -38,6 +41,7 @@ export const signup = async (req, res) => {
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({
+        status: "fail",
         message: "User already exists",
       });
     }
@@ -51,6 +55,7 @@ export const signup = async (req, res) => {
     await newUser.save();
     const token = jwt.sign({ userId: newUser._id }, process.env.SECRET);
     res.json({
+      status: "success",
       token,
       user: {
         fullname: newUser.fullname,
