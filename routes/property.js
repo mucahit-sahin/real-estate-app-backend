@@ -7,6 +7,7 @@ import {
   getProperty,
   updateProperty,
   deleteProperty,
+  getLastProperties,
 } from "../controllers/property.js";
 import auth from "../middlewares/auth.js";
 
@@ -33,5 +34,6 @@ router.get("/", getAllProperties);
 router.get("/:id", getProperty);
 router.put("/:id", auth, updateProperty);
 router.delete("/:id", auth, deleteProperty);
+router.get("/last", getLastProperties);
 
 export default router;

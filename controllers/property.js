@@ -65,40 +65,18 @@ export const createProperty = async (req, res) => {
 
 export const getAllProperties = async (req, res) => {
   try {
-    var minPrice = req.query.minPrice || 0;
-    var maxPrice = req.query.maxPrice || 10000000;
-    var minBedrooms = req.query.minBedrooms || 0;
-    var maxBedrooms = req.query.maxBedrooms || 10;
-    var propertyTypes = ["House", "Apartment", "Room", "Cabin"];
-    var page = req.query.page || 1;
-    var LIMIT = req.query.limit || 5;
-
-    if (req.query.propertyType) {
-      propertyTypes = req.query.propertyType.split(",");
-    }
-    // if there is no query, return all properties
-    var properties = await Property.find({
-      price: { $gte: minPrice, $lte: maxPrice },
-      bedrooms: { $gte: minBedrooms, $lte: maxBedrooms },
-      propertyType: { $in: propertyTypes },
-    }).populate("user", ["_id", "fullname", "email"]);
-
-    const startIndex = (Number(req.query.page) - 1) * LIMIT; // get the starting index of every page
-    const total = properties.length; // get the total number of properties
-    if (req.query.page) {
-      properties = properties.slice(startIndex, startIndex + LIMIT);
-    }
-
+    const properties = await Property.find().populate("user", [
+      "_id",
+      "fullname",
+      "email",
+    ]);
     return res.status(200).json({
       status: "success",
       data: {
         properties,
-        numberofpages: Math.ceil(total / LIMIT),
-        currentPage: Number(page),
       },
     });
   } catch (err) {
-    console.log(err);
     return res.status(400).json({
       status: "fail",
       message: err.message,
@@ -108,9 +86,9 @@ export const getAllProperties = async (req, res) => {
 
 export const getAllPropertiesByLocation = async (req, res) => {
   try {
-    const LIMIT = req.query.limit || 10;
-    const { latitude, longitude } = req.query;
-    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const { latitude, longitude, page } = req.query;
+
     const properties = await Property.find({
       latitude,
       longitude,
@@ -118,14 +96,18 @@ export const getAllPropertiesByLocation = async (req, res) => {
 
     const startIndex = (Number(page) - 1) * LIMIT; // get the starting index of every page
     const total = properties.length; // get the total number of properties
-    const propertiesByUser = properties.slice(startIndex, startIndex + LIMIT);
+
+    const propertiesByLocation = properties.slice(
+      startIndex,
+      startIndex + limit
+    );
 
     return res.status(200).json({
       status: "success",
       data: {
-        properties: propertiesByUser,
-        numberofpages: Math.ceil(total / LIMIT),
+        properties: propertiesByLocation,
         currentPage: Number(page),
+        numberofPages: Math.ceil(total / limit),
       },
     });
   } catch (err) {
@@ -183,6 +165,27 @@ export const deleteProperty = async (req, res) => {
       status: "success",
       data: {
         property,
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "fail",
+      message: err.message,
+    });
+  }
+};
+
+// get last properties
+export const getLastProperties = async (req, res) => {
+  try {
+    const limit = req.query.limit || 10;
+    const properties = await Property.find()
+      .sort({ createdAt: -1 })
+      .limit(limit);
+    return res.status(200).json({
+      status: "success",
+      data: {
+        properties,
       },
     });
   } catch (err) {
