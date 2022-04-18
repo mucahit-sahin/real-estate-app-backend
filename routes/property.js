@@ -31,9 +31,9 @@ const cpUpload = upload.fields([
 
 router.post("/create", auth, createProperty);
 router.get("/", getAllProperties);
+router.get("/last", getLastProperties);
 router.get("/:id", getProperty);
 router.put("/:id", auth, updateProperty);
 router.delete("/:id", auth, deleteProperty);
-router.get("/last", getLastProperties);
 
 export default router;
