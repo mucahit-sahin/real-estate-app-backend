@@ -13,6 +13,7 @@ import auth from "../middlewares/auth.js";
 
 const router = express.Router();
 
+/*
 // SET STORAGE
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -22,13 +23,12 @@ var storage = multer.diskStorage({
     cb(null, file.fieldname + "-" + Date.now());
   },
 });
-
 const upload = multer({ storage: storage });
 const cpUpload = upload.fields([
   { name: "images" },
   { name: "floorPlan", maxCount: 1 },
 ]);
-
+*/
 router.post("/create", auth, createProperty);
 router.get("/", getAllProperties);
 router.get("/last", getLastProperties);
