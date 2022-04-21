@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import fs from "fs";
 import User from "../models/user.js";
 import Property from "../models/property.js";
 
@@ -28,6 +29,7 @@ export const signin = async (req, res) => {
         fullname: user.fullname,
         email: user.email,
         phoneNumber: user.phoneNumber,
+        profilePicture: user.profilePicture,
       },
     });
   } catch (error) {
@@ -84,6 +86,7 @@ export const authUser = async (req, res) => {
         fullname: user.fullname,
         email: user.email,
         phoneNumber: user.phoneNumber,
+        profilePicture: user.profilePicture,
       },
     });
   } catch (error) {
@@ -112,6 +115,34 @@ export const getUserProperties = async (req, res) => {
       properties: propertiesByUser,
       numberofpages: Math.ceil(total / LIMIT),
       currentPage: Number(page),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const changeProfilePicture = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found",
+      });
+    }
+    if (user.profilePicture) {
+      const filePath = `./${user.profilePicture}`;
+      fs.unlinkSync(filePath);
+    }
+    user.profilePicture = req.file.path;
+    await user.save();
+    res.json({
+      status: "success",
+      message: "Profile picture changed successfully",
+      data: {
+        token: jwt.sign({ userId: user._id }, process.env.JWT_KEY),
+        user: user,
+      },
     });
   } catch (error) {
     console.log(error);

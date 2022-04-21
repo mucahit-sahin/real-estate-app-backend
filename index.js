@@ -10,9 +10,16 @@ import userRouter from "./routes/user.js";
 dotenv.config();
 const app = express();
 
+app.use("/uploads", express.static("uploads"));
 app.use(bodyParser.json({ limit: "20mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "20mb", extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  })
+);
 
 app.get("/", (req, res) => {
   res.send("server is running");
